@@ -1,11 +1,6 @@
 from app import db
 import datetime
 
-user_chat_association = db.Table('user_chat_association', db.Model.metadata,
-    db.Column('user_id', db.Integer, db.ForeignKey('users.uid')),
-    db.Column('chat_id', db.Integer, db.ForeignKey('chats.cid'))
-)
-
 class User(db.Model):
     __tablename__ = 'users'
     uid = db.Column(db.Integer, primary_key = True)
@@ -13,7 +8,7 @@ class User(db.Model):
     timestamp = db.Column(db.Time, index=True, default=datetime.datetime.utcnow)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    chats = db.relationship("Chat", secondary=user_chat_association, back_populates="users")
+    chats = db.relationship("Userschat", back_populates="user")
 
     def to_dict(self):
 
@@ -31,12 +26,33 @@ class Userschat(db.Model):
     timestamp = db.Column(db.Time,index=True, default=datetime.datetime.utcnow)
     users_uid = db.Column(db.Integer, db.ForeignKey('users.uid'))
     chats_cid = db.Column(db.Integer, db.ForeignKey('chats.cid'))
+    chat = db.relationship("Chat", back_populates="users", foreign_keys=chats_cid)
+    user = db.relationship("User", back_populates="chats", foreign_keys=users_uid)
+
+    def to_dict(self):
+
+        return {
+            'ucid'        : self.ucid,
+            'timestamp'   : self.timestamp,
+            'uid'         : self.users_uid,
+            'cid'   : self.chats_cid,
+        }
 
 class Chat(db.Model):
     __tablename__ = 'chats'
     cid = db.Column(db.Integer, primary_key = True)
     chatname = db.Column(db.String(256))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
+    users = db.relationship("Userschat", back_populates="chat")
+
+    def to_dict(self):
+
+        return {
+            'cid'        : self.cid,
+            'chatname'    : self.chatname,
+            'timestamp'   : self.timestamp,
+            'uid'         : self.users,
+        }
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -50,7 +66,9 @@ class Message(db.Model):
 
         return {
             'mid'         : self.mid,
-            'text'        : self.text,
             'timestamp'   : self.timestamp,
+            'text'        : self.text,
+            'userfrom'    : self.userfrom,
+            'cid'         : self.cid
         }
 

@@ -5,6 +5,8 @@ from . import db
 from .models import Message
 from .models import Chat
 from .models import User
+from .models import Userschat
+
 
 ChatsApi = Blueprint('chats_api', __name__)
 
@@ -19,12 +21,13 @@ def send_message(cid):
     return jsonify(messageid=newmessage.mid, messagetext=newmessage.text), 200
 
 
-#@ChatsApi.route('/<int:user_id>', methods=['GET'])
-#def get_chats(user_id):
-#    chats = User.chats.filter(user_id==user_id).all()
-#    if chats is None:
-#        return 'no chats', 404
-#    return jsonify([x.to_dict() for x in chats]), 200
+@ChatsApi.route('/<int:user_id>', methods=['GET'])
+def get_chats(user_id):
+    myuser = User.query.filter(User.uid == user_id).first()
+#    chatlist = [c.chat for c in myuser.chats]
+    chatlist = myuser.chats
+
+    return jsonify([x.to_dict() for x in chatlist]), 200
 
 
 @ChatsApi.route('/<int:cid>/messages', methods=['GET'])
