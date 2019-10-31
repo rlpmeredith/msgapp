@@ -1,5 +1,6 @@
 from app import db
 import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,7 +15,7 @@ class User(db.Model):
 
         return {
             'uid'         : self.uid,
-            'cid'   : self.cid,
+            'username': self.username
         }
 
     def __repr__(self):
@@ -51,7 +52,6 @@ class Chat(db.Model):
             'cid'        : self.cid,
             'chatname'    : self.chatname,
             'timestamp'   : self.timestamp,
-            'uid'         : self.users,
         }
 
 class Message(db.Model):
@@ -62,13 +62,20 @@ class Message(db.Model):
     userfrom = db.Column(db.Integer, db.ForeignKey('users.uid'))
     cid = db.Column(db.Integer, db.ForeignKey('chats.cid'))
 
+    from_user = db.relationship('User', foreign_keys=userfrom)
+
     def to_dict(self):
 
         return {
             'mid'         : self.mid,
             'timestamp'   : self.timestamp,
             'text'        : self.text,
-            'userfrom'    : self.userfrom,
+            'userfrom'    : self.from_user.to_dict(),
             'cid'         : self.cid
         }
 
+def set_password(self, password):
+    self.password_hash = generate_password_hash(password)
+
+def check_password(self, password):
+    return check_password_hash(self.password_hash, password)
