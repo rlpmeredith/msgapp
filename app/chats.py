@@ -18,7 +18,7 @@ def send_message(cid):
     newmessage = Message(text=messagetext, userfrom=userid, cid=cid)
     db.session.add(newmessage)
     db.session.commit()
-    return jsonify(messageid=newmessage.mid, messagetext=newmessage.text), 200
+    return jsonify(newmessage.to_dict()), 200
 
 
 @ChatsApi.route('/<int:user_id>', methods=['GET'])
@@ -33,7 +33,7 @@ def get_chats(user_id):
 @ChatsApi.route('/<int:cid>/messages', methods=['GET'])
 def get_chat_messages(cid):
     userid = request.args["user_id"]
-    messagelist = Message.query.filter(Message.cid == cid, Message.userfrom == userid).all()
+    messagelist = Message.query.filter(Message.cid == cid).all()
     if messagelist is None:
         return 'no messages', 404
     return jsonify([x.to_dict() for x in messagelist]), 200
