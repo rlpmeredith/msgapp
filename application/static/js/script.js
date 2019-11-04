@@ -116,9 +116,10 @@ const submitNewMessage = () => {
         })
     })
     .then(res => res.json())
-    // .then(data => createMessage(data));    
-    loadedMessages.add(data.mid)                                                        
-    document.querySelector('#new-message').value = '';                                                                                                                                                    
+    // .then(data => createMessage(data));   
+    // console.log(data.mid) 
+    // loadedMessages.add(data.mid)                                                        
+    // document.querySelector('#new-message').value = '';                                                                                                                                                    
 }
 
 function updateScroll(){
